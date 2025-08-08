@@ -1,14 +1,12 @@
-# NOME DO FICHEIRO: .github/workflows/android-build.yml
-
 name: Build Android APK
 
 on:
   push:
-    branches: [ "main" ] # Executa sempre que houver uma atualização no ramo principal
+    branches: [ "main" ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest # Usa um servidor Linux para a compilação
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout do código
@@ -18,7 +16,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '17' # Versão do Java compatível com as ferramentas Android mais recentes
+        java-version: '17'
 
     - name: Configurar o Gradle Cache
       uses: actions/cache@v4
@@ -30,28 +28,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Conceder permissão de execução ao gradlew
-      # O ficheiro gradlew ainda não existe no repositório.
-      # O processo de build do Android o criará.
-      # Adicionaremos este passo mais tarde, se necessário, mas o Android Action geralmente lida com isso.
-      # Por enquanto, vamos usar a ação de setup do Android.
-      run: echo "Setup completo. O wrapper do Gradle será manuseado pela próxima etapa."
-
-    - name: Compilar o APK de Debug com Gradle
-      run: |
-        # Navegar para a raiz do projeto Android se necessário
-        # chmod +x ./gradlew # O wrapper precisa ser executável
-        # ./gradlew :app:assembleDebug # Comando para compilar o APK
-        # Como não temos o gradlew, vamos usar uma ação que faz isso
-        echo "Este passo será substituído pela ação de build."
-
-    - name: Build Android APK
+    - name: Compilar o APK com a Ação do Gradle
       uses: gradle/gradle-build-action@v2
       with:
+        # Especificamos a versão do Gradle aqui, como sugerido pelo erro.
+        gradle-version: '8.4'
         arguments: :app:assembleDebug
 
     - name: Carregar o APK como um Artefacto
       uses: actions/upload-artifact@v4
       with:
-        name: thiaguinho-apk # Nome do ficheiro a ser guardado
-        path: app/build/outputs/apk/debug/app-debug.apk # Localização do .apk gerado
+        name: thiaguinho-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
