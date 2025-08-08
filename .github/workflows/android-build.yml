@@ -1,0 +1,57 @@
+# NOME DO FICHEIRO: .github/workflows/android-build.yml
+
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main" ] # Executa sempre que houver uma atualização no ramo principal
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Usa um servidor Linux para a compilação
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v4
+
+    - name: Configurar o ambiente Java (JDK)
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17' # Versão do Java compatível com as ferramentas Android mais recentes
+
+    - name: Configurar o Gradle Cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Conceder permissão de execução ao gradlew
+      # O ficheiro gradlew ainda não existe no repositório.
+      # O processo de build do Android o criará.
+      # Adicionaremos este passo mais tarde, se necessário, mas o Android Action geralmente lida com isso.
+      # Por enquanto, vamos usar a ação de setup do Android.
+      run: echo "Setup completo. O wrapper do Gradle será manuseado pela próxima etapa."
+
+    - name: Compilar o APK de Debug com Gradle
+      run: |
+        # Navegar para a raiz do projeto Android se necessário
+        # chmod +x ./gradlew # O wrapper precisa ser executável
+        # ./gradlew :app:assembleDebug # Comando para compilar o APK
+        # Como não temos o gradlew, vamos usar uma ação que faz isso
+        echo "Este passo será substituído pela ação de build."
+
+    - name: Build Android APK
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: :app:assembleDebug
+
+    - name: Carregar o APK como um Artefacto
+      uses: actions/upload-artifact@v4
+      with:
+        name: thiaguinho-apk # Nome do ficheiro a ser guardado
+        path: app/build/outputs/apk/debug/app-debug.apk # Localização do .apk gerado
